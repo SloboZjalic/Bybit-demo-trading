@@ -5,7 +5,7 @@ const crypto = require('crypto');
 const apiKey = 'XXXXXXXXXXXXXXX';
 const secret = 'XXXXXXXXXXXXXXXXXXXXXXXX';
 
-// Correct WebSocket URL for Bybit Testnet Private Stream
+// Correct WebSocket URL for Bybit DEMO Private Stream
 const wsUrl = 'wss://stream-demo.bybit.com/v5/private';
 
 // Function to generate the authentication payload
@@ -21,11 +21,11 @@ function generateAuthPayload() {
     };
 }
 
-// Establish WebSocket connection to the private testnet endpoint
+// Establish WebSocket connection to the private DEMO endpoint
 const ws = new WebSocket(wsUrl);
 
 ws.on('open', () => {
-    console.log('Connected to Bybit Private Testnet WebSocket');
+    console.log('Connected to Bybit Private DEMO WebSocket');
 
     // Authenticate once the connection is open
     const authPayload = generateAuthPayload();
