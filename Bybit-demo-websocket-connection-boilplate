@@ -1,0 +1,57 @@
+const WebSocket = require('ws');
+const crypto = require('crypto');
+
+// Replace with your Bybit demo API key and secret
+const apiKey = 'XXXXXXXXXXXXXXX';
+const secret = 'XXXXXXXXXXXXXXXXXXXXXXXX';
+
+// Correct WebSocket URL for Bybit Testnet Private Stream
+const wsUrl = 'wss://stream-demo.bybit.com/v5/private';
+
+// Function to generate the authentication payload
+function generateAuthPayload() {
+    const expires = Date.now() + 10000; // Expires 10 seconds from now
+    const signature = crypto.createHmac('sha256', secret)
+                            .update(`GET/realtime${expires}`)
+                            .digest('hex');
+
+    return {
+        op: 'auth',
+        args: [apiKey, expires, signature]
+    };
+}
+
+// Establish WebSocket connection to the private testnet endpoint
+const ws = new WebSocket(wsUrl);
+
+ws.on('open', () => {
+    console.log('Connected to Bybit Private Testnet WebSocket');
+
+    // Authenticate once the connection is open
+    const authPayload = generateAuthPayload();
+    ws.send(JSON.stringify(authPayload));
+
+    // After authentication, subscribe to private topics like 'order'
+    ws.send(JSON.stringify({
+        op: 'subscribe',
+        args: ['order']  // Subscribe to private data like orders
+    }));
+});
+
+ws.on('message', (data) => {
+    const message = JSON.parse(data);
+    console.log('Received message:', message);
+});
+
+ws.on('close', () => {
+    console.log('WebSocket connection closed');
+});
+
+ws.on('error', (err) => {
+    console.error('WebSocket error:', err);
+});
+
+// Ping the WebSocket every 20 seconds to keep the connection alive
+setInterval(() => {
+    ws.send(JSON.stringify({ op: 'ping' }));
+}, 20000);
